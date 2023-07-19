@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, Response
+from flask import Flask, jsonify, request, Response, render_template
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 import io
@@ -41,7 +41,7 @@ def fetch_questions_from_db(query, *args):
     return questions
 @app.route('/')
 def index():
-    return("Hello")
+    return render_template('index.html')
 
 @app.route('/questions', methods=['POST'])
 def insert_questions():
