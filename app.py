@@ -39,7 +39,7 @@ def fetch_questions_from_db(query, *args):
     questions = c.fetchall()
     conn.close()
     return questions
-@app.route('/', methods=['GET])
+@app.route('/')
 def index():
     return("Hello")
 
