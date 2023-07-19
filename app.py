@@ -39,6 +39,9 @@ def fetch_questions_from_db(query, *args):
     questions = c.fetchall()
     conn.close()
     return questions
+@app.route('/', methods=['GET])
+def index():
+    return("Hello")
 
 @app.route('/questions', methods=['POST'])
 def insert_questions():
@@ -88,7 +91,6 @@ def generate_questions(no_of_questions):
 
     return jsonify({"questions": [question[0] for question in questions]}), 200
 
-# Implement other endpoints (generate_questions_by_topics, generate_questions_by_year, generate_pdf) as before...
 
 @app.route('/questions/topic/<string:topics>/<int:no_of_questions>', methods=['GET'])
 def generate_questions_by_topics(topics, no_of_questions):
