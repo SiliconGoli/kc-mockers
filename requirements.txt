@@ -25,9 +25,9 @@ scipy
 six==1.16.0
 tifffile==2021.11.2
 toml==0.10.2
-torch==1.11.0
-torchaudio==0.11.0
-torchvision==0.12.0
-typing_extensions==4.1.1
-urllib3==1.26.9
-youtube-dl==2021.12.17
+torch
+torchaudio
+torchvision
+typing_extensions
+urllib3
+youtube-dl
