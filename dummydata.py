@@ -1,7 +1,6 @@
 import requests
 from faker import Faker
 import random
-import datetime
 
 def insert_question(data):
     url = 'http://127.0.0.1:5000/questions'
@@ -21,7 +20,23 @@ if __name__ == '__main__':
     for _ in range(20):
         data = {
             "subject": fake.word(ext_word_list=["Science", "Mathematics", "History", "English", "Geography"]),
-            "topic": fake.word(),
+            "topic": fake.word(ext_word_list=[
+            'Physical quantities and units',
+            'Kinematics',
+            'Dynamics',
+            'Forces, density, and pressure',
+            'Work, energy, and power',
+            'Deformation of solids',
+            'Waves',
+            'Superposition',
+            'Electricity',
+            'D.C. circuits',
+            'Particle physics',
+            'Nuclear physics',
+            'Oscillations',
+            'Magnetic fields',
+            'Alternating currents'
+           ]),
             "subtopic": fake.word(),
             "question": fake.sentence(),
             "answer": fake.paragraph(),

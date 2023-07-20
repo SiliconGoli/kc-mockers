@@ -4,7 +4,10 @@ from reportlab.pdfgen import canvas
 import io
 import sqlite3
 
+from flask_cors import CORS
+
 app = Flask(__name__)
+CORS(app)
 
 def create_database():
     conn = sqlite3.connect('questions.db')
@@ -86,7 +89,7 @@ def generate_questions(no_of_questions):
     if no_of_questions < 1:
         return jsonify({"message": "Invalid number of questions requested. Must be a positive integer."}), 400
 
-    query = "SELECT question FROM questions ORDER BY RANDOM() LIMIT ?;"
+    query = "SELECT image FROM questions ORDER BY RANDOM() LIMIT ?;"
     questions = fetch_questions_from_db(query, no_of_questions)
 
     return jsonify({"questions": [question[0] for question in questions]}), 200
@@ -111,7 +114,7 @@ def generate_questions_by_topics(topics, no_of_questions):
 
     selected_questions = []
     for topic in valid_topics:
-        query = "SELECT question FROM questions WHERE topic=? ORDER BY RANDOM() LIMIT ?;"
+        query = "SELECT image FROM questions WHERE topic=? ORDER BY RANDOM() LIMIT ?;"
         topic_questions = fetch_questions_from_db(query, topic, no_of_questions)
         selected_questions.extend(topic_questions)
 
