@@ -1,14 +1,11 @@
-from flask import Flask, jsonify, request, make_response, render_template
+from flask import Flask, jsonify, make_response, render_template
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.lib.utils import ImageReader
 import io
 import sqlite3
-import requests
 import asyncio
 import aiohttp
-from aiohttp import ClientSession
-from aiohttp.web import Response
 import PIL
 from PIL import Image
 from flask_cors import CORS
@@ -28,42 +25,6 @@ def fetch_questions_from_db(query, *args):
 @app.route('/')
 def index():
     return render_template('index.html')
-
-    data = request.get_json()
-    if not data:
-        return jsonify({"message": "No data provided in the request body."}), 400
-
-    conn = sqlite3.connect('questions.db')
-    c = conn.cursor()
-
-    try:
-        # Insert the data into the database
-        c.execute('''INSERT INTO questions 
-                    (subject, topic, subtopic, question, answer, image, pimg_datadf, video, link, tags, difficulty, status, created_at, updated_at) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);''',
-                  (data.get('subject', ''),
-                   data.get('topic', ''),
-                   data.get('subtopic', ''),
-                   data.get('question', ''),
-                   data.get('answer', ''),
-                   data.get('image', ''),
-                   data.get('pdf', ''),
-                   data.get('video', ''),
-                   data.get('link', ''),
-                   data.get('tags', ''),
-                   data.get('difficulty', ''),
-                   data.get('status', ''),
-                   data.get('created_at', ''),
-                   data.get('updated_at', '')))
-
-        conn.commit()
-        conn.close()
-        return jsonify({"message": "Data inserted successfully."}), 201
-
-    except Exception as e:
-        conn.rollback()
-        conn.close()
-        return jsonify({"message": "Error occurred while inserting data.", "error": str(e)}), 500
 
 @app.route('/questions/<int:no_of_questions>', methods=['GET'])
 def generate_questions(no_of_questions):
@@ -210,85 +171,6 @@ async def generate_pdf_async(no_of_questions):
 def generate_pdf_route(no_of_questions):
     return asyncio.run(generate_pdf_async(no_of_questions))
 
-# @app.route('/generate-pdf/<int:no_of_questions>', methods=['GET'])
-# def generate_pdf(no_of_questions):
-
-#     '''conn = sqlite3.connect('questions.db')
-#     c = conn.cursor()
-#     c.execute("SELECT image FROM questions ORDER BY RANDOM() LIMIT ?;", (no_of_questions,))
-#     image_urls = c.fetchall()
-#     conn.close()'''
-
-#     url = f"https://kc-mockers.onrender.com/questions/{no_of_questions}"
-#     image_urls = requests.get(url).json()['questions']
-#     print(image_urls)
-
-#     if not image_urls:
-#         return "No image questions found.", 404
-
-#     pdf_buffer = io.BytesIO()
-#     pdf_canvas = canvas.Canvas(pdf_buffer, pagesize=letter)
-
-#     # New layout settings
-#     images_per_row = 1
-#     margin_x = 50
-#     margin_y = 30
-#     fixed_width = (letter[0] - 2 * margin_x) / images_per_row
-#     divider_height = 5
-
-#     def draw_image(image_data, x, y, width, height):
-#         img = ImageReader(io.BytesIO(image_data))
-
-#         # Draw the image on the canvas
-#         pdf_canvas.drawImage(img, x, y, width=width, height=height)
-
-#     current_y = letter[1] - margin_y
-#     current_x = margin_x
-
-#     for index, image_url in enumerate(image_urls):
-#         try:
-#             # Download the image
-#             response = requests.get(image_url, stream=True)
-#             response.raise_for_status()
-#             print("Downloading image")
-#             image_data = response.content
-#             img = Image.open(io.BytesIO(image_data))
-
-#             # Calculate the adjusted height based on the fixed width
-#             adjusted_height = (fixed_width / img.width) * img.height
-
-#             # Draw the image on the canvas
-#             draw_image(image_data, current_x, current_y - adjusted_height, fixed_width, adjusted_height)
-
-#             # Move to the next column or start a new row
-#             current_x += fixed_width
-
-#             if index % images_per_row == images_per_row - 1:
-#                 current_x = margin_x
-#                 current_y -= adjusted_height + divider_height  # Add divider height after each row
-
-#             # Draw horizontal divider line between rows
-#             if index % images_per_row == images_per_row - 1 and index < len(image_urls) - 1:
-#                 pdf_canvas.setStrokeColorRGB(0, 0, 0)  # Black color for the divider
-#                 pdf_canvas.setLineWidth(0.5)
-#                 pdf_canvas.line(margin_x, current_y, letter[0] - margin_x, current_y)
-
-#             # Start a new page if the current page is full
-#             if current_y < margin_y:
-#                 pdf_canvas.showPage()
-#                 current_y = letter[1] - margin_y
-#                 current_x = margin_x
-
-#         except requests.exceptions.RequestException as e:
-#             print(f"Failed to download image from URL: {image_url[0]}. Error: {e}")
-
-#     pdf_canvas.save()
-#     pdf_buffer.seek(0)
-
-#     # Set the response headers for the PDF file download
-#     response = Response(pdf_buffer.getvalue(), content_type='application/pdf')
-#     response.headers['Content-Disposition'] = 'attachment; filename=questions.pdf'
-#     return response
 
 if __name__ == '__main__':
     app.run(debug=True)
