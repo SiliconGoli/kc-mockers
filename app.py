@@ -142,11 +142,14 @@ def generate_questions_by_year(year, no_of_questions):
     return jsonify({"questions": [question[0] for question in year_questions]}), 200
 @app.route('/generate-pdf/<int:no_of_questions>', methods=['GET'])
 def generate_pdf(no_of_questions):
-    conn = sqlite3.connect('questions.db')
-    c = conn.cursor()
-    c.execute("SELECT image FROM questions ORDER BY RANDOM() LIMIT ?;", (no_of_questions,))
-    image_urls = c.fetchall()
-    conn.close()
+    # conn = sqlite3.connect('questions.db')
+    # c = conn.cursor()
+    # c.execute("SELECT image FROM questions ORDER BY RANDOM() LIMIT ?;", (no_of_questions,))
+    # image_urls = c.fetchall()
+    # conn.close()
+    url = f"https://kc-mockers.onrender.com/questions/{no_of_questions}"
+    image_urls = requests.get(url).json()['questions']
+    print(image_urls)
 
     if not image_urls:
         return "No image questions found.", 404
@@ -156,8 +159,8 @@ def generate_pdf(no_of_questions):
 
     # New layout settings
     images_per_row = 1
-    margin_x = 60
-    margin_y = 60
+    margin_x = 50
+    margin_y = 50
     fixed_width = (letter[0] - 2 * margin_x) / images_per_row
     divider_height = 5
 
@@ -173,7 +176,7 @@ def generate_pdf(no_of_questions):
     for index, image_url in enumerate(image_urls):
         try:
             # Download the image
-            response = requests.get(image_url[0], stream=True)
+            response = requests.get(image_url, stream=True)
             response.raise_for_status()
             print("Downloading image")
             image_data = response.content
